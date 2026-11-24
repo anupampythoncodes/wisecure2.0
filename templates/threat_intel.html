@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>WiSecure 2.0 | Threat Intelligence</title>
+
+    <style>
+      :root {
+        --bg: #070b14;
+        --panel: rgba(15, 27, 45, 0.95);
+        --border: rgba(56, 189, 248, 0.18);
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e5f3ff;
+        --muted: #8295ad;
+        --red: #fb536b;
+        --orange: #f5a623;
+        --green: #27d99b;
+        --info: #60a5fa;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(14, 165, 233, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            ellipse at 90% 15%,
+            rgba(59, 130, 246, 0.1),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #070b14, #0b1220 55%, #080e19);
+        background-attachment: fixed;
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1500px;
+        margin: auto;
+      }
+
+      /* HEADER */
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 27px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 13px;
+      }
+
+      .brand-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        font-size: 21px;
+      }
+
+      .brand-name {
+        color: var(--cyan);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #f0f9ff;
+      }
+
+      h2 {
+        font-size: 18px;
+        color: #e5f3ff;
+        margin-bottom: 15px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin-top: 9px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      nav {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        text-decoration: none;
+        background: rgba(34, 211, 238, 0.07);
+        color: var(--cyan);
+        padding: 11px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+        transition: 0.25s;
+      }
+
+      nav a:hover {
+        background: rgba(34, 211, 238, 0.16);
+        border-color: var(--cyan);
+        box-shadow: 0 0 16px rgba(34, 211, 238, 0.1);
+      }
+
+      /* DETECTION NOTICE */
+
+      .notice {
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(96, 165, 250, 0.25);
+        color: #a9d5ff;
+        padding: 16px 18px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+        line-height: 1.8;
+        font-size: 12px;
+      }
+
+      .notice strong {
+        color: #60a5fa;
+      }
+
+      /* ERROR */
+
+      .error {
+        background: rgba(251, 83, 107, 0.09);
+        color: #ff9aaa;
+        border: 1px solid rgba(251, 83, 107, 0.3);
+        padding: 15px;
+        border-radius: 9px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      /* STATISTICS */
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+        gap: 15px;
+        margin-bottom: 22px;
+      }
+
+      .card {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        min-width: 0;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+        transition: 0.25s;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--cyan),
+          transparent
+        );
+        opacity: 0.6;
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34, 211, 238, 0.4);
+      }
+
+      .card small {
+        display: block;
+        color: var(--muted);
+        margin-bottom: 12px;
+        font-size: 11px;
+      }
+
+      .card strong {
+        font-size: 26px;
+        color: var(--cyan);
+        overflow-wrap: anywhere;
+      }
+
+      .metric-high strong {
+        color: var(--red);
+      }
+
+      .metric-medium strong {
+        color: var(--orange);
+      }
+
+      .metric-ips strong {
+        color: var(--info);
+      }
+
+      .metric-ports strong {
+        color: #a78bfa;
+      }
+
+      /* PANELS */
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 21px;
+        min-width: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .panel-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+
+      .panel-heading h2 {
+        margin-bottom: 0;
+      }
+
+      .section-label {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.7px;
+        padding: 7px 11px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(34, 211, 238, 0.04);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      .panel-description {
+        margin-bottom: 18px;
+      }
+
+      /* TWO COLUMNS */
+
+      .two-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .two-columns .panel {
+        min-width: 0;
+      }
+
+      /* TABLES */
+
+      .table-wrap {
+        overflow-x: auto;
+        width: 100%;
+        border: 1px solid rgba(56, 189, 248, 0.13);
+        border-radius: 9px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 570px;
+        background: rgba(8, 17, 31, 0.7);
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 13px 11px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.11);
+        font-size: 12px;
+        vertical-align: middle;
+      }
+
+      th {
+        color: #9cc5df;
+        background: #122139;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      td {
+        color: #cbd5e1;
+        line-height: 1.6;
+      }
+
+      tbody tr {
+        transition: background 0.2s;
+      }
+
+      tbody tr:hover {
+        background: rgba(34, 211, 238, 0.05);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* RISK BADGES */
+
+      .risk {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        border: 1px solid;
+      }
+
+      .HIGH {
+        background: rgba(251, 83, 107, 0.12);
+        color: var(--red);
+        border-color: rgba(251, 83, 107, 0.3);
+      }
+
+      .MEDIUM {
+        background: rgba(245, 166, 35, 0.12);
+        color: var(--orange);
+        border-color: rgba(245, 166, 35, 0.3);
+      }
+
+      .LOW {
+        background: rgba(39, 217, 155, 0.1);
+        color: var(--green);
+        border-color: rgba(39, 217, 155, 0.25);
+      }
+
+      .INFO {
+        background: rgba(96, 165, 250, 0.1);
+        color: var(--info);
+        border-color: rgba(96, 165, 250, 0.25);
+      }
+
+      /* IP INVESTIGATION LINK */
+
+      a.ip-link {
+        display: inline-block;
+        color: var(--cyan);
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 7px 10px;
+        background: rgba(34, 211, 238, 0.08);
+        border: 1px solid rgba(34, 211, 238, 0.2);
+        border-radius: 6px;
+        transition: 0.2s;
+        white-space: nowrap;
+      }
+
+      a.ip-link:hover {
+        background: rgba(34, 211, 238, 0.18);
+        border-color: var(--cyan);
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.1);
+      }
+
+      /* EMPTY STATE */
+
+      .empty {
+        color: var(--muted);
+        padding: 22px 10px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .empty-icon {
+        font-size: 31px;
+        margin-bottom: 10px;
+      }
+
+      /* FOOTER */
+
+      .footer {
+        margin-top: 27px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.8;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 900px) {
+        .two-columns {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 17px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        nav {
+          width: 100%;
+        }
+
+        nav a {
+          flex: 1;
+          text-align: center;
+        }
+
+        .panel {
+          padding: 17px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 12px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .card {
+          padding: 15px;
+        }
+
+        .card strong {
+          font-size: 22px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+
+      <header>
+        <div>
+          <div class="brand">
+            <div class="brand-icon">🛡️</div>
+            <div class="brand-name">WiSecure 2.0</div>
+          </div>
+
+          <h1>Threat Intelligence Dashboard</h1>
+
+          <div class="subtitle">
+            Unified network threat monitoring and investigation
+          </div>
+        </div>
+
+        <nav>
+          <a href="/">Dashboard</a>
+          <a href="/analytics">Analytics</a>
+          <a href="/alerts">Alert History</a>
+          <a href="/investigate">IP Investigation</a>
+        </nav>
+      </header>
+
+      <!-- DETECTION SCOPE NOTICE -->
+
+      <div class="notice">
+        <strong>Detection Scope:</strong>
+        This dashboard analyzes WiSecure's locally captured flow records, hybrid
+        risk classifications and persistent alerts. HIGH and MEDIUM indicate
+        activity requiring review; they do not independently prove malicious
+        activity.
+      </div>
+
+      {% if error %}
+
+      <!-- ERROR MESSAGE -->
+
+      <div class="error">
+        <strong>⚠ Threat Intelligence Error:</strong>
+        {{ error }}
+      </div>
+
+      {% else %}
+
+      <!-- OVERVIEW STATISTICS -->
+
+      <div class="grid">
+        <div class="card">
+          <small>FLOWS ANALYZED</small>
+          <strong>{{ data.total_flows }}</strong>
+        </div>
+
+        <div class="card metric-high">
+          <small>HIGH RISK FLOWS</small>
+          <strong>{{ data.high }}</strong>
+        </div>
+
+        <div class="card metric-medium">
+          <small>MEDIUM RISK FLOWS</small>
+          <strong>{{ data.medium }}</strong>
+        </div>
+
+        <div class="card metric-ips">
+          <small>IPs REQUIRING REVIEW</small>
+          <strong>{{ data.flagged_ips|length }}</strong>
+        </div>
+
+        <div class="card metric-ports">
+          <small>ELEVATED-RISK PORTS</small>
+          <strong>{{ data.ports|length }}</strong>
+        </div>
+
+        <div class="card">
+          <small>PERSISTENT ALERTS</small>
+          <strong>{{ data.alert_count }}</strong>
+        </div>
+      </div>
+
+      <!-- IP THREAT RANKING -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>◈ IP Threat Ranking</h2>
+
+          <span class="section-label"> PRIORITY IP ANALYSIS </span>
+        </div>
+
+        <p class="muted panel-description">
+          IP addresses are ranked using their associated HIGH and MEDIUM flow
+          counts. Select an IP to open its investigation page.
+        </p>
+
+        {% if data.flagged_ips %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>IP Address</th>
+                <th>Risk Score</th>
+                <th>HIGH</th>
+                <th>MEDIUM</th>
+                <th>Associated Flows</th>
+                <th>Packets</th>
+                <th>Traffic (MB)</th>
+                <th>Investigation</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for item in data.flagged_ips %}
+
+              <tr>
+                <td>{{ item.ip }}</td>
+
+                <td>
+                  <strong>{{ item.score }}</strong>
+                </td>
+
+                <td class="metric-high">{{ item.high }}</td>
+
+                <td class="metric-medium">{{ item.medium }}</td>
+
+                <td>{{ item.flows }}</td>
+
+                <td>{{ item.packets }}</td>
+
+                <td>{{ item.data_mb }}</td>
+
+                <td>
+                  <a
+                    class="ip-link"
+                    href="{{ url_for('investigate_ip', ip=item.ip) }}"
+                  >
+                    Investigate →
+                  </a>
+                </td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">✓</div>
+          No HIGH or MEDIUM risk IP activity was found in the analyzed flows.
+        </div>
+
+        {% endif %}
+      </section>
+
+      <!-- PORT ACTIVITY AND INDICATORS -->
+
+      <div class="two-columns">
+        <!-- SUSPICIOUS PORT ACTIVITY -->
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>◉ Suspicious Port Activity</h2>
+
+            <span class="section-label"> PORT ANALYSIS </span>
+          </div>
+
+          <p class="muted panel-description">
+            Ports appearing in HIGH or MEDIUM risk flows.
+          </p>
+
+          {% if data.ports %}
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Port</th>
+                  <th>HIGH Flows</th>
+                  <th>MEDIUM Flows</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for item in data.ports %}
+
+                <tr>
+                  <td>{{ item.port }}</td>
+                  <td class="metric-high">{{ item.high }}</td>
+                  <td class="metric-medium">{{ item.medium }}</td>
+                  <td>{{ item.total }}</td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% else %}
+
+          <div class="empty">No elevated-risk port activity found.</div>
+
+          {% endif %}
+        </section>
+
+        <!-- THREAT INDICATORS -->
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>⚑ Threat Indicators</h2>
+
+            <span class="section-label"> DETECTION PATTERNS </span>
+          </div>
+
+          <p class="muted panel-description">
+            Detection explanations from elevated-risk flows.
+          </p>
+
+          {% if data.indicators %}
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Detection Indicator</th>
+                  <th>Occurrences</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for item in data.indicators %}
+
+                <tr>
+                  <td>{{ item.indicator }}</td>
+                  <td>{{ item.count }}</td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          {% else %}
+
+          <div class="empty">No elevated-risk detection indicators found.</div>
+
+          {% endif %}
+        </section>
+      </div>
+
+      <!-- RECENT PERSISTENT ALERTS -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>⚠ Recent Persistent Alerts</h2>
+
+          <span class="section-label"> SECURITY EVENT HISTORY </span>
+        </div>
+
+        {% if data.alerts %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Detected At</th>
+                <th>Source IP</th>
+                <th>Destination IP</th>
+                <th>Protocol</th>
+                <th>Risk</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for alert in data.alerts %}
+
+              <tr>
+                <td>{{ alert.time }}</td>
+
+                <td>{{ alert.source_ip }}</td>
+
+                <td>{{ alert.destination_ip }}</td>
+
+                <td>{{ alert.protocol }}</td>
+
+                <td>
+                  <span class="risk {{ alert.risk }}"> {{ alert.risk }} </span>
+                </td>
+
+                <td>{{ alert.score }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          No persistent HIGH or MEDIUM alerts are available.
+        </div>
+
+        {% endif %}
+      </section>
+
+      {% endif %}
+
+      <!-- FOOTER -->
+
+      <div class="footer">
+        WiSecure 2.0 | Network Threat Intelligence and Investigation
+        <br />
+        Risk classifications are indicators for further review, not confirmation
+        of malicious activity.
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='wisecure_notifications.js') }}"></script>
+  </body>
+</html>

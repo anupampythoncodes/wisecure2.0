@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta http-equiv="refresh" content="10" />
+
+    <title>WiSecure 2.0 | Network Security Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      :root {
+        --bg: #070b14;
+        --panel: rgba(15, 27, 45, 0.92);
+        --panel-light: #122139;
+        --border: rgba(56, 189, 248, 0.18);
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e5f3ff;
+        --muted: #8295ad;
+        --red: #fb536b;
+        --orange: #f5a623;
+        --green: #27d99b;
+        --info: #60a5fa;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(14, 165, 233, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            ellipse at 90% 15%,
+            rgba(59, 130, 246, 0.1),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #070b14, #0b1220 55%, #080e19);
+        background-attachment: fixed;
+        margin: 0;
+        padding: 30px;
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1450px;
+        margin: auto;
+      }
+
+      /* HEADER */
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 28px;
+      }
+
+      h1 {
+        font-size: 32px;
+        letter-spacing: 1px;
+        color: #f0f9ff;
+        margin: 0 0 8px;
+        text-shadow: 0 0 20px rgba(34, 211, 238, 0.25);
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        letter-spacing: 0.5px;
+      }
+
+      .live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: rgba(39, 217, 155, 0.08);
+        border: 1px solid rgba(39, 217, 155, 0.25);
+        color: var(--green);
+        padding: 10px 16px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--green);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--green);
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      /* MAIN NAVIGATION */
+
+      .main-nav {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin: 0 0 25px;
+        padding: 13px;
+        background: rgba(15, 27, 45, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+      }
+
+      .main-nav a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 10px 14px;
+        color: #a9c3dc;
+        background: rgba(34, 211, 238, 0.045);
+        border: 1px solid transparent;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+      }
+
+      .main-nav a:hover {
+        color: var(--cyan);
+        background: rgba(34, 211, 238, 0.12);
+        border-color: rgba(34, 211, 238, 0.3);
+        transform: translateY(-1px);
+      }
+
+      .main-nav a.active {
+        color: var(--cyan);
+        background: rgba(34, 211, 238, 0.13);
+        border-color: rgba(34, 211, 238, 0.35);
+        box-shadow: 0 0 12px rgba(34, 211, 238, 0.08);
+      }
+
+      @media (max-width: 650px) {
+        .main-nav {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .main-nav a {
+          text-align: center;
+          padding: 11px 7px;
+        }
+      }
+
+      /* CARDS */
+
+      .card,
+      .metric-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+        transition:
+          border-color 0.25s,
+          transform 0.25s;
+      }
+
+      .card {
+        padding: 24px;
+        margin-bottom: 22px;
+      }
+
+      .card:hover,
+      .metric-card:hover {
+        border-color: rgba(34, 211, 238, 0.45);
+        transform: translateY(-2px);
+      }
+
+      .card h3 {
+        color: #d9f5ff;
+        margin-top: 0;
+        margin-bottom: 20px;
+        letter-spacing: 0.4px;
+        font-size: 17px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 17px;
+        margin-bottom: 22px;
+      }
+
+      .metric-card {
+        padding: 22px;
+      }
+
+      .metric-card h3 {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .metric-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--cyan);
+        text-shadow: 0 0 14px rgba(34, 211, 238, 0.2);
+      }
+
+      .high {
+        color: var(--red);
+      }
+      .medium {
+        color: var(--orange);
+      }
+      .low {
+        color: var(--green);
+      }
+      .info {
+        color: var(--info);
+      }
+
+      /* NETWORK INFORMATION */
+
+      .network-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+
+      .network-item {
+        padding: 17px;
+        background: rgba(34, 211, 238, 0.045);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow-wrap: anywhere;
+        color: var(--text);
+      }
+
+      .network-item strong {
+        display: block;
+        margin-bottom: 9px;
+        color: var(--cyan);
+        font-size: 13px;
+      }
+
+      /* STATUS */
+
+      .status-banner {
+        padding: 17px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        margin-bottom: 22px;
+        border: 1px solid;
+      }
+
+      .status-normal {
+        background: rgba(39, 217, 155, 0.09);
+        border-color: rgba(39, 217, 155, 0.35);
+        color: var(--green);
+      }
+
+      .status-warning {
+        background: rgba(245, 166, 35, 0.09);
+        border-color: rgba(245, 166, 35, 0.35);
+        color: var(--orange);
+      }
+
+      .status-danger {
+        background: rgba(251, 83, 107, 0.09);
+        border-color: rgba(251, 83, 107, 0.4);
+        color: var(--red);
+      }
+
+      .status-info {
+        background: rgba(96, 165, 250, 0.09);
+        border-color: rgba(96, 165, 250, 0.35);
+        color: var(--info);
+      }
+
+      /* MONITORING DETAILS */
+
+      .monitoring-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+
+      .monitoring-item {
+        padding: 15px;
+        border-radius: 9px;
+        background: rgba(34, 211, 238, 0.045);
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+
+      .monitoring-item strong {
+        display: block;
+        color: var(--cyan);
+        margin-bottom: 7px;
+        font-size: 13px;
+      }
+
+      /* TABLE */
+
+      .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 1000px;
+        font-size: 13px;
+        background: rgba(8, 15, 27, 0.6);
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 14px 12px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+        vertical-align: top;
+      }
+
+      th {
+        background: #122139;
+        color: var(--cyan);
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+      }
+
+      td {
+        color: #c6d8ea;
+        overflow-wrap: anywhere;
+      }
+
+      tbody tr {
+        transition: background 0.2s;
+      }
+
+      tbody tr:hover {
+        background: rgba(34, 211, 238, 0.055);
+      }
+
+      .risk {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .risk-HIGH {
+        color: var(--red);
+      }
+      .risk-MEDIUM {
+        color: var(--orange);
+      }
+      .risk-LOW {
+        color: var(--green);
+      }
+      .risk-INFO {
+        color: var(--info);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      /* CHARTS */
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        height: 310px;
+      }
+
+      /* FOOTER */
+
+      .footer {
+        text-align: center;
+        color: var(--muted);
+        margin: 35px 0 10px;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        line-height: 1.8;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .network-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        body {
+          padding: 13px;
+        }
+
+        h1 {
+          font-size: 25px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .metric-card {
+          padding: 15px;
+        }
+
+        .metric-value {
+          font-size: 25px;
+        }
+
+        .card {
+          padding: 16px;
+        }
+
+        .monitoring-list {
+          grid-template-columns: 1fr;
+        }
+
+        .chart-container {
+          height: 250px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+
+      <div class="header">
+        <div>
+          <h1>🔐 WiSecure 2.0</h1>
+          <div class="subtitle">
+            Intelligent Hybrid Network Intrusion and Anomaly Detection System
+          </div>
+        </div>
+
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE MONITORING
+        </div>
+      </div>
+
+      <!-- MAIN NAVIGATION -->
+
+      <nav class="main-nav">
+        <a href="/" class="active">🏠 Dashboard</a>
+
+        <a href="/analytics">📊 Analytics</a>
+
+        <a href="/alerts">🚨 Alert History</a>
+
+        <a href="/notifications">🔔 Notifications</a>
+
+        <a href="/incidents">🧩 Attack Timeline</a>
+
+        <a href="/investigate">🔍 IP Investigation</a>
+
+        <a href="/threat-intel">🌐 Threat Intelligence</a>
+
+        <a href="/reports">📄 Incident Reports</a>
+      </nav>
+
+      <!-- SYSTEM STATUS -->
+
+      {% if summary.error %}
+
+      <div class="status-banner status-warning">⚠️ {{ summary.error }}</div>
+
+      {% else %} {% if summary.high > 0 %}
+
+      <div class="status-banner status-danger">
+        🚨 HIGH PRIORITY: {{ summary.high }} flow(s) require investigation.
+      </div>
+
+      {% elif summary.medium > 0 %}
+
+      <div class="status-banner status-warning">
+        ⚠️ {{ summary.medium }} flow(s) require review.
+      </div>
+
+      {% else %}
+
+      <div class="status-banner status-normal">
+        🟢 No HIGH or MEDIUM risk flows currently detected.
+      </div>
+
+      {% endif %} {% endif %}
+
+      <!-- NETWORK DETAILS -->
+
+      <div class="card">
+        <h3>🌐 Network Information</h3>
+
+        <div class="network-grid">
+          <div class="network-item">
+            <strong>Hostname</strong>
+            {{ network.hostname }}
+          </div>
+
+          <div class="network-item">
+            <strong>IP Address</strong>
+            {{ network.ip_address }}
+          </div>
+
+          <div class="network-item">
+            <strong>Operating System</strong>
+            {{ network.os }}
+          </div>
+        </div>
+      </div>
+
+      {% if not summary.error %}
+
+      <!-- METRIC CARDS -->
+
+      <div class="grid">
+        <div class="metric-card">
+          <h3>📡 Captured Flows</h3>
+          <div class="metric-value">{{ summary.total_flows }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>📦 Eligible Flows</h3>
+          <div class="metric-value">{{ summary.eligible_flows }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🔍 ML Anomalies</h3>
+          <div class="metric-value medium">{{ summary.ml_anomalies }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🧠 Behavioral Findings</h3>
+          <div class="metric-value medium">
+            {{ summary.behavioral_findings }}
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🔴 High Risk</h3>
+          <div class="metric-value high">{{ summary.high }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🟠 Medium Risk</h3>
+          <div class="metric-value medium">{{ summary.medium }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🟢 Low Risk</h3>
+          <div class="metric-value low">{{ summary.low }}</div>
+        </div>
+
+        <div class="metric-card">
+          <h3>🔵 Informational</h3>
+          <div class="metric-value info">{{ summary.info }}</div>
+        </div>
+      </div>
+
+      <!-- MONITORING OVERVIEW -->
+
+      <div class="card">
+        <h3>📊 Monitoring Overview</h3>
+
+        <div class="monitoring-list">
+          <div class="monitoring-item">
+            <strong>Total Packets Observed</strong>
+            {{ summary.total_packets }}
+          </div>
+
+          <div class="monitoring-item">
+            <strong>Highest Flow Packet Rate</strong>
+            {{ summary.packet_rate }} packets/sec
+          </div>
+
+          <div class="monitoring-item">
+            <strong>Latest Flow Timestamp</strong>
+            {{ summary.last_updated }}
+          </div>
+
+          <div class="monitoring-item">
+            <strong>Records Available</strong>
+            {{ summary.total_flows }} network flows
+          </div>
+        </div>
+
+        <p class="muted">
+          Data is based on the latest {{ summary.total_flows }} records
+          available to the dashboard.
+        </p>
+      </div>
+
+      <!-- RISK DISTRIBUTION -->
+
+      <div class="card">
+        <h3>📈 Hybrid Risk Distribution</h3>
+
+        <div class="chart-container">
+          <canvas id="riskChart"></canvas>
+        </div>
+      </div>
+
+      <!-- PACKET RATE HISTORY -->
+
+      <div class="card">
+        <h3>📉 Flow Packet Rate History</h3>
+
+        <div class="chart-container">
+          <canvas id="packetChart"></canvas>
+        </div>
+      </div>
+
+      <!-- RECENT NETWORK FLOWS -->
+
+      <div class="card">
+        <h3>🔎 Recent Network Flows</h3>
+
+        {% if flows %}
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Protocol</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Ports</th>
+                <th>ML Result</th>
+                <th>Score</th>
+                <th>Risk</th>
+                <th>Detection Details</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for flow in flows %}
+
+              <tr>
+                <td>{{ flow.first_seen }}</td>
+
+                <td>{{ flow.protocol }}</td>
+
+                <td>{{ flow.source_ip }}</td>
+
+                <td>{{ flow.destination_ip }}</td>
+
+                <td>{{ flow.source_port }} → {{ flow.destination_port }}</td>
+
+                <td>{{ flow.model_prediction }}</td>
+
+                <td>{{ flow.hybrid_score }}</td>
+
+                <td class="risk risk-{{ flow.hybrid_risk }}">
+                  {{ flow.hybrid_risk }}
+                </td>
+
+                <td>{{ flow.detection_explanation }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <p class="muted">No eligible network flows available yet.</p>
+
+        {% endif %}
+      </div>
+
+      {% endif %}
+
+      <!-- FOOTER -->
+
+      <div class="footer">
+        WiSecure 2.0 | Hybrid ML and Behavioral Network Detection
+        <br />
+        Dashboard refreshes every 10 seconds.
+      </div>
+    </div>
+
+    <!-- CHART CONFIGURATION -->
+
+    {% if not summary.error %}
+
+    <script>
+
+      const historyData = {{ history | tojson }};
+
+      const riskLabels = ["HIGH", "MEDIUM", "LOW", "INFO"];
+
+      const riskValues = [
+          {{ summary.high }},
+          {{ summary.medium }},
+          {{ summary.low }},
+          {{ summary.info }}
+      ];
+
+      Chart.defaults.color = "#9db2c9";
+      Chart.defaults.font.family = "'Segoe UI', Arial, sans-serif";
+
+      const chartGrid = "rgba(148, 163, 184, 0.10)";
+
+      // RISK DISTRIBUTION CHART
+
+      new Chart(document.getElementById("riskChart"), {
+
+          type: "doughnut",
+
+          data: {
+
+              labels: riskLabels,
+
+              datasets: [{
+
+                  data: riskValues,
+
+                  backgroundColor: [
+                      "#fb536b",
+                      "#f5a623",
+                      "#27d99b",
+                      "#60a5fa"
+                  ],
+
+                  borderColor: "#101b2d",
+                  borderWidth: 3,
+                  hoverOffset: 8
+
+              }]
+
+          },
+
+          options: {
+
+              responsive: true,
+              maintainAspectRatio: false,
+
+              cutout: "68%",
+
+              plugins: {
+
+                  legend: {
+                      position: "bottom",
+
+                      labels: {
+                          color: "#c6d8ea",
+                          padding: 20,
+                          usePointStyle: true
+                      }
+                  }
+
+              }
+
+          }
+
+      });
+
+
+      // PACKET RATE HISTORY CHART
+
+      new Chart(document.getElementById("packetChart"), {
+
+          type: "line",
+
+          data: {
+
+              labels: historyData.labels,
+
+              datasets: [{
+
+                  label: "Packets per second",
+
+                  data: historyData.rates,
+
+                  borderColor: "#22d3ee",
+
+                  backgroundColor: "rgba(34,211,238,0.10)",
+
+                  pointBackgroundColor: "#22d3ee",
+
+                  pointBorderColor: "#0b1220",
+
+                  pointRadius: 3,
+
+                  pointHoverRadius: 6,
+
+                  borderWidth: 2,
+
+                  tension: 0.35,
+
+                  fill: true
+
+              }]
+
+          },
+
+          options: {
+
+              responsive: true,
+              maintainAspectRatio: false,
+
+              interaction: {
+                  intersect: false,
+                  mode: "index"
+              },
+
+              plugins: {
+
+                  legend: {
+                      labels: {
+                          color: "#c6d8ea",
+                          usePointStyle: true
+                      }
+                  }
+
+              },
+
+              scales: {
+
+                  x: {
+                      grid: {
+                          color: chartGrid
+                      },
+                      ticks: {
+                          color: "#8295ad"
+                      }
+                  },
+
+                  y: {
+                      beginAtZero: true,
+
+                      grid: {
+                          color: chartGrid
+                      },
+
+                      ticks: {
+                          color: "#8295ad"
+                      }
+                  }
+
+              }
+
+          }
+
+      });
+    </script>
+
+    {% endif %}
+
+    <!-- NOTIFICATION SYSTEM -->
+
+    <script src="{{ url_for('static', filename='wisecure_notifications.js') }}"></script>
+  </body>
+</html>

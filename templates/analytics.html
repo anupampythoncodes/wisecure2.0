@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>WiSecure 2.0 | Traffic Analytics</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      :root {
+        --bg: #070b14;
+        --panel: rgba(15, 27, 45, 0.95);
+        --border: rgba(56, 189, 248, 0.18);
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e5f3ff;
+        --muted: #8295ad;
+        --green: #27d99b;
+        --orange: #f5a623;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(14, 165, 233, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            ellipse at 90% 15%,
+            rgba(59, 130, 246, 0.1),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #070b14, #0b1220 55%, #080e19);
+        background-attachment: fixed;
+        color: var(--text);
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1450px;
+        margin: auto;
+      }
+
+      /* HEADER */
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 30px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 13px;
+      }
+
+      .brand-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        font-size: 22px;
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.08);
+      }
+
+      .brand-name {
+        color: var(--cyan);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+
+      h1 {
+        font-size: 28px;
+        color: #f0f9ff;
+        letter-spacing: 0.4px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin-top: 9px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .nav a {
+        text-decoration: none;
+        padding: 11px 17px;
+        border-radius: 8px;
+        background: rgba(34, 211, 238, 0.07);
+        color: var(--cyan);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.25s;
+      }
+
+      .nav a:hover {
+        background: rgba(34, 211, 238, 0.16);
+        border-color: var(--cyan);
+        box-shadow: 0 0 16px rgba(34, 211, 238, 0.1);
+      }
+
+      /* STATISTICS */
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+        margin-bottom: 27px;
+      }
+
+      .stat-card {
+        position: relative;
+        background: var(--panel);
+        padding: 23px;
+        border-radius: 13px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transition: 0.25s;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--cyan),
+          transparent
+        );
+        opacity: 0.65;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34, 211, 238, 0.45);
+      }
+
+      .stat-card p {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 13px;
+      }
+
+      .stat-card h2 {
+        font-size: 27px;
+        color: var(--cyan);
+        overflow-wrap: anywhere;
+      }
+
+      /* CHART GRID */
+
+      .charts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .chart-card {
+        position: relative;
+        background: var(--panel);
+        padding: 23px;
+        border-radius: 13px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.22);
+        min-width: 0;
+        transition: 0.25s;
+      }
+
+      .chart-card:hover {
+        border-color: rgba(34, 211, 238, 0.38);
+      }
+
+      .chart-card h2 {
+        font-size: 16px;
+        color: #dff7ff;
+        margin-bottom: 21px;
+        font-weight: 600;
+      }
+
+      .chart-subtitle {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: -13px;
+        margin-bottom: 17px;
+      }
+
+      .chart-wrapper {
+        position: relative;
+        height: 300px;
+        width: 100%;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      /* ERROR STATE */
+
+      .error {
+        background: rgba(251, 83, 107, 0.08);
+        border: 1px solid rgba(251, 83, 107, 0.3);
+        padding: 35px;
+        border-radius: 12px;
+        color: #ff9aaa;
+        text-align: center;
+        margin-bottom: 22px;
+      }
+
+      .error h2 {
+        color: #ff8296;
+        font-size: 19px;
+        margin-bottom: 10px;
+      }
+
+      .error p {
+        font-size: 13px;
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+      }
+
+      /* FOOTER */
+
+      .footer {
+        margin-top: 30px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+        line-height: 1.8;
+        letter-spacing: 0.4px;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 1000px) {
+        .stats {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .charts {
+          grid-template-columns: 1fr;
+        }
+
+        .wide {
+          grid-column: auto;
+        }
+      }
+
+      @media (max-width: 550px) {
+        body {
+          padding: 14px;
+        }
+
+        header {
+          align-items: flex-start;
+        }
+
+        h1 {
+          font-size: 23px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        .stat-card {
+          padding: 19px;
+        }
+
+        .chart-card {
+          padding: 17px;
+        }
+
+        .chart-wrapper {
+          height: 260px;
+        }
+
+        .nav {
+          width: 100%;
+        }
+
+        .nav a {
+          flex: 1;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+
+      <header>
+        <div>
+          <div class="brand">
+            <div class="brand-icon">🔐</div>
+            <div class="brand-name">WiSecure 2.0</div>
+          </div>
+
+          <h1>Traffic Analytics</h1>
+
+          <p class="subtitle">
+            Network traffic statistics and behavioral insights
+          </p>
+        </div>
+
+        <div class="nav">
+          <a href="/">← Dashboard</a>
+          <a href="/alerts">Alert History</a>
+        </div>
+      </header>
+
+      {% if analytics.error %}
+
+      <!-- ERROR STATE -->
+
+      <div class="error">
+        <h2>⚠ Analytics Unavailable</h2>
+        <p>{{ analytics.error }}</p>
+      </div>
+
+      {% else %}
+
+      <!-- NETWORK STATISTICS -->
+
+      <section class="stats">
+        <div class="stat-card">
+          <p>Eligible Flows</p>
+          <h2>{{ "{:,}".format(analytics.total_flows) }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <p>Total Packets</p>
+          <h2>{{ "{:,}".format(analytics.total_packets) }}</h2>
+        </div>
+
+        <div class="stat-card">
+          <p>Total Traffic</p>
+          <h2>{{ "%.2f"|format(analytics.total_bytes / 1048576) }} MB</h2>
+        </div>
+
+        <div class="stat-card">
+          <p>Average Flow Size</p>
+          <h2>{{ "%.2f"|format(analytics.average_flow_size / 1024) }} KB</h2>
+        </div>
+      </section>
+
+      <!-- ANALYTICS CHARTS -->
+
+      <section class="charts">
+        <div class="chart-card">
+          <h2>◈ Protocol Distribution</h2>
+          <p class="chart-subtitle">Traffic distribution by protocol</p>
+
+          <div class="chart-wrapper">
+            <canvas id="protocolChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h2>⌁ Top Source IP Addresses</h2>
+          <p class="chart-subtitle">
+            Sources generating the most observed flows
+          </p>
+
+          <div class="chart-wrapper">
+            <canvas id="sourceChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h2>⌁ Top Destination IP Addresses</h2>
+          <p class="chart-subtitle">Most frequently contacted destinations</p>
+
+          <div class="chart-wrapper">
+            <canvas id="destinationChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h2>◉ Frequently Used Destination Ports</h2>
+          <p class="chart-subtitle">
+            Distribution of observed destination ports
+          </p>
+
+          <div class="chart-wrapper">
+            <canvas id="portChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card wide">
+          <h2>⌁ Network Activity Timeline</h2>
+          <p class="chart-subtitle">Observed flow activity over time</p>
+
+          <div class="chart-wrapper">
+            <canvas id="timelineChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      {% endif %}
+
+      <!-- FOOTER -->
+
+      <div class="footer">
+        WiSecure 2.0 | Advanced Network Traffic Analytics
+        <br />
+        Traffic statistics represent observed flows, not necessarily malicious
+        activity.
+      </div>
+    </div>
+
+    <script>
+
+      // Only initialize charts when analytics data is available.
+
+      {% if not analytics.error %}
+
+      const protocolLabels =
+          {{ analytics.protocol_labels | tojson }};
+
+      const protocolValues =
+          {{ analytics.protocol_values | tojson }};
+
+      const sourceLabels =
+          {{ analytics.source_labels | tojson }};
+
+      const sourceValues =
+          {{ analytics.source_values | tojson }};
+
+      const destinationLabels =
+          {{ analytics.destination_labels | tojson }};
+
+      const destinationValues =
+          {{ analytics.destination_values | tojson }};
+
+      const portLabels =
+          {{ analytics.port_labels | tojson }};
+
+      const portValues =
+          {{ analytics.port_values | tojson }};
+
+      const timelineLabels =
+          {{ analytics.timeline_labels | tojson }};
+
+      const timelineValues =
+          {{ analytics.timeline_values | tojson }};
+
+
+      // GLOBAL CHART THEME
+
+      Chart.defaults.color = "#8295ad";
+      Chart.defaults.font.family = "'Segoe UI', Arial, sans-serif";
+      Chart.defaults.font.size = 11;
+
+      const gridColor = "rgba(148, 163, 184, 0.10)";
+
+      const commonScales = {
+          x: {
+              grid: {
+                  color: gridColor
+              },
+              ticks: {
+                  color: "#8295ad"
+              },
+              border: {
+                  color: "rgba(56,189,248,.15)"
+              }
+          },
+          y: {
+              beginAtZero: true,
+              grid: {
+                  color: gridColor
+              },
+              ticks: {
+                  color: "#8295ad"
+              },
+              border: {
+                  color: "rgba(56,189,248,.15)"
+              }
+          }
+      };
+
+      const commonOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+              duration: 700
+          },
+          plugins: {
+              legend: {
+                  labels: {
+                      color: "#cbd5e1",
+                      usePointStyle: true,
+                      padding: 18
+                  }
+              }
+          }
+      };
+
+
+      // PROTOCOL DISTRIBUTION
+
+      if (document.getElementById("protocolChart")) {
+
+          new Chart(
+              document.getElementById("protocolChart"),
+              {
+                  type: "doughnut",
+
+                  data: {
+                      labels: protocolLabels,
+
+                      datasets: [{
+                          data: protocolValues,
+
+                          backgroundColor: [
+                              "#22d3ee",
+                              "#3b82f6",
+                              "#27d99b",
+                              "#a78bfa",
+                              "#f5a623"
+                          ],
+
+                          borderColor: "#0f1b2d",
+                          borderWidth: 3,
+                          hoverOffset: 9
+                      }]
+                  },
+
+                  options: {
+                      ...commonOptions,
+
+                      cutout: "66%",
+
+                      plugins: {
+                          legend: {
+                              position: "bottom",
+                              labels: {
+                                  color: "#cbd5e1",
+                                  padding: 18,
+                                  usePointStyle: true
+                              }
+                          }
+                      }
+                  }
+              }
+          );
+
+      }
+
+
+      // TOP SOURCE IP ADDRESSES
+
+      if (document.getElementById("sourceChart")) {
+
+          new Chart(
+              document.getElementById("sourceChart"),
+              {
+                  type: "bar",
+
+                  data: {
+                      labels: sourceLabels,
+
+                      datasets: [{
+                          label: "Observed Flows",
+                          data: sourceValues,
+
+                          backgroundColor: "rgba(34,211,238,.65)",
+                          borderColor: "#22d3ee",
+                          borderWidth: 1,
+                          borderRadius: 5
+                      }]
+                  },
+
+                  options: {
+                      ...commonOptions,
+
+                      indexAxis: "y",
+
+                      scales: {
+                          x: {
+                              ...commonScales.x,
+                              beginAtZero: true
+                          },
+                          y: commonScales.y
+                      }
+                  }
+              }
+          );
+
+      }
+
+
+      // TOP DESTINATION IP ADDRESSES
+
+      if (document.getElementById("destinationChart")) {
+
+          new Chart(
+              document.getElementById("destinationChart"),
+              {
+                  type: "bar",
+
+                  data: {
+                      labels: destinationLabels,
+
+                      datasets: [{
+                          label: "Observed Flows",
+                          data: destinationValues,
+
+                          backgroundColor: "rgba(39,217,155,.60)",
+                          borderColor: "#27d99b",
+                          borderWidth: 1,
+                          borderRadius: 5
+                      }]
+                  },
+
+                  options: {
+                      ...commonOptions,
+
+                      indexAxis: "y",
+
+                      scales: {
+                          x: {
+                              ...commonScales.x,
+                              beginAtZero: true
+                          },
+                          y: commonScales.y
+                      }
+                  }
+              }
+          );
+
+      }
+
+
+      // FREQUENTLY USED DESTINATION PORTS
+
+      if (document.getElementById("portChart")) {
+
+          new Chart(
+              document.getElementById("portChart"),
+              {
+                  type: "bar",
+
+                  data: {
+                      labels: portLabels,
+
+                      datasets: [{
+                          label: "Observed Flows",
+                          data: portValues,
+
+                          backgroundColor: "rgba(167,139,250,.65)",
+                          borderColor: "#a78bfa",
+                          borderWidth: 1,
+                          borderRadius: 5
+                      }]
+                  },
+
+                  options: {
+                      ...commonOptions,
+
+                      scales: commonScales
+                  }
+              }
+          );
+
+      }
+
+
+      // NETWORK ACTIVITY TIMELINE
+
+      if (document.getElementById("timelineChart")) {
+
+          new Chart(
+              document.getElementById("timelineChart"),
+              {
+                  type: "line",
+
+                  data: {
+                      labels: timelineLabels,
+
+                      datasets: [{
+                          label: "Flows per minute",
+                          data: timelineValues,
+
+                          borderColor: "#22d3ee",
+                          backgroundColor: "rgba(34,211,238,.10)",
+
+                          pointBackgroundColor: "#22d3ee",
+                          pointBorderColor: "#0f1b2d",
+                          pointBorderWidth: 2,
+                          pointRadius: 3,
+                          pointHoverRadius: 6,
+
+                          fill: true,
+                          tension: 0.35
+                      }]
+                  },
+
+                  options: {
+                      ...commonOptions,
+
+                      interaction: {
+                          intersect: false,
+                          mode: "index"
+                      },
+
+                      scales: commonScales
+                  }
+              }
+          );
+
+      }
+
+      {% endif %}
+    </script>
+
+    <script src="{{ url_for('static', filename='wisecure_notifications.js') }}"></script>
+  </body>
+</html>

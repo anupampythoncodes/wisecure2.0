@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>WiSecure 2.0 | Threat Notifications</title>
+
+    <style>
+      :root {
+        --bg: #070b14;
+        --panel: rgba(15, 27, 45, 0.95);
+        --border: rgba(56, 189, 248, 0.18);
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e5f3ff;
+        --muted: #8295ad;
+        --red: #fb536b;
+        --orange: #f5a623;
+        --green: #27d99b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(14, 165, 233, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            ellipse at 90% 15%,
+            rgba(59, 130, 246, 0.1),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #070b14, #0b1220 55%, #080e19);
+        background-attachment: fixed;
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1450px;
+        margin: auto;
+      }
+
+      /* HEADER */
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 13px;
+      }
+
+      .brand-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 11px;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        font-size: 21px;
+      }
+
+      .brand-name {
+        color: var(--cyan);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+
+      h1 {
+        font-size: 28px;
+        color: #f0f9ff;
+        margin-bottom: 9px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        background: rgba(34, 211, 238, 0.07);
+        color: var(--cyan);
+        padding: 11px 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 600;
+        transition: 0.25s;
+      }
+
+      .nav-link:hover {
+        background: rgba(34, 211, 238, 0.16);
+        border-color: var(--cyan);
+        box-shadow: 0 0 16px rgba(34, 211, 238, 0.1);
+      }
+
+      /* SUMMARY CARDS */
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 16px;
+        margin-bottom: 23px;
+      }
+
+      .summary-card {
+        position: relative;
+        background: var(--panel);
+        padding: 22px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+        overflow: hidden;
+        transition: 0.25s;
+      }
+
+      .summary-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--cyan),
+          transparent
+        );
+        opacity: 0.6;
+      }
+
+      .summary-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34, 211, 238, 0.4);
+      }
+
+      .summary-card small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 12px;
+      }
+
+      .summary-card strong {
+        display: block;
+        font-size: 29px;
+        color: var(--cyan);
+      }
+
+      .summary-card.unread-card strong {
+        color: var(--red);
+      }
+
+      /* MAIN PANEL */
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 23px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 21px;
+      }
+
+      h2 {
+        font-size: 18px;
+        color: #e5f3ff;
+      }
+
+      .section-label {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.7px;
+        padding: 7px 11px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(34, 211, 238, 0.04);
+      }
+
+      /* BUTTONS */
+
+      button {
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        border-radius: 7px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        transition: 0.25s;
+      }
+
+      .mark-all-button {
+        background: linear-gradient(135deg, #0891b2, #2563eb);
+        color: white;
+      }
+
+      .mark-all-button:hover {
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .read-button {
+        background: rgba(34, 211, 238, 0.1);
+        color: var(--cyan);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        white-space: nowrap;
+      }
+
+      .read-button:hover {
+        background: rgba(34, 211, 238, 0.2);
+        border-color: var(--cyan);
+      }
+
+      /* TABLE */
+
+      .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid rgba(56, 189, 248, 0.13);
+        border-radius: 9px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1000px;
+        background: rgba(8, 17, 31, 0.7);
+      }
+
+      th,
+      td {
+        padding: 14px 12px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.11);
+        text-align: left;
+        font-size: 12px;
+        vertical-align: top;
+      }
+
+      th {
+        background: #122139;
+        color: #9cc5df;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      td {
+        color: #cbd5e1;
+        line-height: 1.6;
+      }
+
+      tbody tr {
+        transition: background 0.2s;
+      }
+
+      tbody tr:hover {
+        background: rgba(34, 211, 238, 0.05);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* READ / UNREAD */
+
+      .unread {
+        background: rgba(251, 83, 107, 0.035);
+      }
+
+      .read {
+        color: #8295ad;
+        opacity: 0.78;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      .status-new {
+        color: var(--red);
+        background: rgba(251, 83, 107, 0.12);
+        border: 1px solid rgba(251, 83, 107, 0.25);
+      }
+
+      .status-read {
+        color: var(--green);
+        background: rgba(39, 217, 155, 0.1);
+        border: 1px solid rgba(39, 217, 155, 0.22);
+      }
+
+      /* RISK */
+
+      .high {
+        color: var(--red);
+        font-weight: 700;
+      }
+
+      .reason {
+        max-width: 280px;
+        min-width: 200px;
+        line-height: 1.7;
+        color: #a9bfd2;
+      }
+
+      .score {
+        color: var(--cyan);
+        font-weight: 700;
+      }
+
+      /* EMPTY STATE */
+
+      .empty {
+        text-align: center;
+        padding: 55px 20px;
+        color: var(--muted);
+      }
+
+      .empty-icon {
+        font-size: 42px;
+        margin-bottom: 15px;
+      }
+
+      .empty h3 {
+        color: #e5f3ff;
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .empty p {
+        font-size: 13px;
+        line-height: 1.8;
+        max-width: 520px;
+        margin: auto;
+      }
+
+      /* FOOTER */
+
+      .footer {
+        margin-top: 28px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.8;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 700px) {
+        body {
+          padding: 17px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .header {
+          align-items: flex-start;
+        }
+
+        .actions {
+          width: 100%;
+        }
+
+        .nav-link {
+          flex: 1;
+          text-align: center;
+        }
+
+        .panel {
+          padding: 16px;
+        }
+      }
+
+      @media (max-width: 450px) {
+        body {
+          padding: 12px;
+        }
+
+        .summary {
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+
+        .summary-card {
+          padding: 15px;
+          min-width: 0;
+        }
+
+        .summary-card strong {
+          font-size: 24px;
+        }
+
+        .panel-header {
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+
+      <div class="header">
+        <div>
+          <div class="brand">
+            <div class="brand-icon">🔔</div>
+            <div class="brand-name">WiSecure 2.0</div>
+          </div>
+
+          <h1>Threat Notifications</h1>
+
+          <div class="subtitle">
+            Automated HIGH-risk incident notifications generated by WiSecure.
+          </div>
+        </div>
+
+        <div class="actions">
+          <a href="/" class="nav-link">Dashboard</a>
+          <a href="/alerts" class="nav-link">Alert History</a>
+          <a href="/threat-intel" class="nav-link">Threat Intelligence</a>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+
+      <div class="summary">
+        <div class="summary-card unread-card">
+          <small>UNREAD NOTIFICATIONS</small>
+          <strong>{{ unread_count }}</strong>
+        </div>
+
+        <div class="summary-card">
+          <small>TOTAL NOTIFICATIONS</small>
+          <strong>{{ notifications|length }}</strong>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION HISTORY -->
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2>◈ Notification History</h2>
+
+          <div class="actions">
+            <span class="section-label"> SECURITY EVENT CENTER </span>
+
+            {% if unread_count > 0 %}
+
+            <form method="POST" action="/notifications/mark-all-read">
+              <button type="submit" class="mark-all-button">
+                ✓ Mark All as Read
+              </button>
+            </form>
+
+            {% endif %}
+          </div>
+        </div>
+
+        {% if notifications %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Generated At</th>
+                <th>Source IP</th>
+                <th>Destination IP</th>
+                <th>Protocol</th>
+                <th>Risk</th>
+                <th>Score</th>
+                <th>Detection Reason</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for item in notifications %}
+
+              <tr class="{{ 'read' if item.is_read else 'unread' }}">
+                <td>
+                  {% if item.is_read %}
+
+                  <span class="status status-read"> ✓ Read </span>
+
+                  {% else %}
+
+                  <span class="status status-new"> ● New </span>
+
+                  {% endif %}
+                </td>
+
+                <td>{{ item.created_at }}</td>
+
+                <td>{{ item.source_ip }}</td>
+
+                <td>{{ item.destination_ip }}</td>
+
+                <td>{{ item.protocol }}</td>
+
+                <td class="high">{{ item.risk_level }}</td>
+
+                <td class="score">{{ item.hybrid_score }}</td>
+
+                <td class="reason">{{ item.reason }}</td>
+
+                <td>
+                  {% if not item.is_read %}
+
+                  <form
+                    method="POST"
+                    action="{{ url_for('mark_notification_read', notification_id=item.notification_id) }}"
+                  >
+                    <button class="read-button" type="submit">Mark Read</button>
+                  </form>
+
+                  {% else %}
+
+                  <span class="muted"> Completed </span>
+
+                  {% endif %}
+                </td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+          <div class="empty-icon">🔔</div>
+
+          <h3>No Threat Notifications Yet</h3>
+
+          <p>
+            WiSecure will automatically create a notification when a new
+            HIGH-risk incident is detected. Notifications will appear here for
+            review.
+          </p>
+        </div>
+
+        {% endif %}
+      </div>
+
+      <!-- FOOTER -->
+
+      <div class="footer">
+        WiSecure 2.0 | Security Notification and Incident Awareness Center
+        <br />
+        Notifications indicate detected security events requiring review.
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='wisecure_notifications.js') }}"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Runtime-generated data
+*.csv
+*.log
+*.tmp
+incident_reports/
+reports/
+
+# Datasets
+dataset/
+CICIDS2017/
+cicids2017/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

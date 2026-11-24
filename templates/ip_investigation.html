@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>WiSecure 2.0 | IP Investigation</title>
+
+    <style>
+      :root {
+        --bg: #070b14;
+        --panel: rgba(15, 27, 45, 0.95);
+        --border: rgba(56, 189, 248, 0.18);
+        --cyan: #22d3ee;
+        --blue: #3b82f6;
+        --text: #e5f3ff;
+        --muted: #8295ad;
+        --red: #fb536b;
+        --orange: #f5a623;
+        --green: #27d99b;
+        --info: #60a5fa;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background:
+          radial-gradient(
+            ellipse at 15% 0%,
+            rgba(14, 165, 233, 0.12),
+            transparent 35%
+          ),
+          radial-gradient(
+            ellipse at 90% 15%,
+            rgba(59, 130, 246, 0.1),
+            transparent 30%
+          ),
+          linear-gradient(135deg, #070b14, #0b1220 55%, #080e19);
+        background-attachment: fixed;
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1450px;
+        margin: auto;
+      }
+
+      /* HEADER */
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 30px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 13px;
+      }
+
+      .brand-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        font-size: 22px;
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.08);
+      }
+
+      .brand-name {
+        color: var(--cyan);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+
+      h1 {
+        font-size: 28px;
+        color: #f0f9ff;
+        letter-spacing: 0.4px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin-top: 9px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      nav {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        text-decoration: none;
+        background: rgba(34, 211, 238, 0.07);
+        color: var(--cyan);
+        padding: 11px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.25s;
+      }
+
+      nav a:hover {
+        background: rgba(34, 211, 238, 0.16);
+        border-color: var(--cyan);
+        box-shadow: 0 0 16px rgba(34, 211, 238, 0.1);
+      }
+
+      /* PANELS */
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 21px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .panel h2 {
+        font-size: 17px;
+        color: #e5f3ff;
+        margin-bottom: 17px;
+      }
+
+      .panel-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 17px;
+      }
+
+      .panel-heading h2 {
+        margin-bottom: 0;
+      }
+
+      .section-label {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.7px;
+        padding: 7px 11px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(34, 211, 238, 0.04);
+      }
+
+      /* SEARCH FORM */
+
+      form {
+        display: flex;
+        gap: 11px;
+        flex-wrap: wrap;
+      }
+
+      input {
+        flex: 1;
+        min-width: 220px;
+        padding: 14px;
+        background: #091527;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 8px;
+        color: #e5f3ff;
+        font-size: 14px;
+        outline: none;
+        transition: 0.2s;
+      }
+
+      input::placeholder {
+        color: #647b95;
+      }
+
+      input:focus {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+      }
+
+      button {
+        border: 1px solid rgba(34, 211, 238, 0.35);
+        background: linear-gradient(135deg, #0891b2, #2563eb);
+        color: white;
+        padding: 13px 23px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        transition: 0.25s;
+      }
+
+      button:hover {
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .search-help {
+        margin-top: 13px;
+      }
+
+      /* INVESTIGATION SUMMARY */
+
+      .summary {
+        line-height: 1.8;
+        background: rgba(34, 211, 238, 0.045);
+        border: 1px solid rgba(34, 211, 238, 0.16);
+        padding: 17px;
+        border-radius: 9px;
+        color: #c7e8f4;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      .investigation-note {
+        margin-bottom: 15px;
+      }
+
+      /* METRIC CARDS */
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 15px;
+        margin-bottom: 21px;
+      }
+
+      .card {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        min-width: 0;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+        transition: 0.25s;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 2px;
+        width: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--cyan),
+          transparent
+        );
+        opacity: 0.55;
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34, 211, 238, 0.4);
+      }
+
+      .card small {
+        color: var(--muted);
+        display: block;
+        margin-bottom: 12px;
+        font-size: 11px;
+      }
+
+      .card strong {
+        font-size: 25px;
+        color: var(--cyan);
+        overflow-wrap: anywhere;
+      }
+
+      .metric-high strong {
+        color: var(--red);
+      }
+
+      .metric-medium strong {
+        color: var(--orange);
+      }
+
+      .metric-low strong {
+        color: var(--green);
+      }
+
+      .metric-info strong {
+        color: var(--info);
+      }
+
+      /* TABLES */
+
+      .table-wrap {
+        overflow-x: auto;
+        width: 100%;
+        border: 1px solid rgba(56, 189, 248, 0.13);
+        border-radius: 9px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+        background: rgba(8, 17, 31, 0.7);
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 14px 12px;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.11);
+        font-size: 12px;
+        vertical-align: top;
+      }
+
+      th {
+        color: #9cc5df;
+        background: #122139;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      td {
+        color: #cbd5e1;
+        line-height: 1.6;
+      }
+
+      tbody tr {
+        transition: background 0.2s;
+      }
+
+      tbody tr:hover {
+        background: rgba(34, 211, 238, 0.05);
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* RISK BADGES */
+
+      .risk {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        border: 1px solid;
+      }
+
+      .HIGH {
+        background: rgba(251, 83, 107, 0.12);
+        color: var(--red);
+        border-color: rgba(251, 83, 107, 0.3);
+      }
+
+      .MEDIUM {
+        background: rgba(245, 166, 35, 0.12);
+        color: var(--orange);
+        border-color: rgba(245, 166, 35, 0.3);
+      }
+
+      .LOW {
+        background: rgba(39, 217, 155, 0.1);
+        color: var(--green);
+        border-color: rgba(39, 217, 155, 0.25);
+      }
+
+      .INFO {
+        background: rgba(96, 165, 250, 0.1);
+        color: var(--info);
+        border-color: rgba(96, 165, 250, 0.25);
+      }
+
+      /* ERROR */
+
+      .error {
+        background: rgba(251, 83, 107, 0.09);
+        color: #ff9aaa;
+        border: 1px solid rgba(251, 83, 107, 0.3);
+        padding: 15px;
+        border-radius: 9px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      /* EMPTY STATE */
+
+      .empty {
+        color: var(--muted);
+        padding: 20px 0;
+        font-size: 13px;
+      }
+
+      .empty-box {
+        text-align: center;
+        padding: 45px 20px;
+        color: var(--muted);
+      }
+
+      .empty-icon {
+        font-size: 37px;
+        margin-bottom: 12px;
+      }
+
+      .empty-box h3 {
+        color: #d9f5ff;
+        margin-bottom: 9px;
+      }
+
+      /* FOOTER */
+
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.8;
+      }
+
+      /* RESPONSIVE */
+
+      @media (max-width: 750px) {
+        body {
+          padding: 17px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 12px;
+        }
+
+        .panel {
+          padding: 16px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+
+        .card {
+          padding: 15px;
+        }
+
+        .card strong {
+          font-size: 21px;
+        }
+
+        nav {
+          width: 100%;
+        }
+
+        nav a {
+          flex: 1;
+          text-align: center;
+        }
+
+        form {
+          flex-direction: column;
+        }
+
+        input {
+          width: 100%;
+          min-width: 0;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- HEADER -->
+
+      <header>
+        <div>
+          <div class="brand">
+            <div class="brand-icon">🔐</div>
+            <div class="brand-name">WiSecure 2.0</div>
+          </div>
+
+          <h1>IP Investigation</h1>
+
+          <div class="subtitle">
+            Investigate network activity and correlate observed IP records
+          </div>
+        </div>
+
+        <nav>
+          <a href="/">Dashboard</a>
+          <a href="/analytics">Analytics</a>
+          <a href="/alerts">Alert History</a>
+        </nav>
+      </header>
+
+      <!-- SEARCH PANEL -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>⌕ Search an IP Address</h2>
+
+          <span class="section-label"> IP INVESTIGATION ENGINE </span>
+        </div>
+
+        <form method="GET" action="/investigate">
+          <input
+            type="text"
+            name="ip"
+            placeholder="Enter IPv4 or IPv6 address"
+            value="{{ searched_ip or '' }}"
+            required
+          />
+
+          <button type="submit">Investigate IP →</button>
+        </form>
+
+        <p class="muted search-help">
+          Search covers the latest flow records currently loaded by WiSecure.
+        </p>
+      </section>
+
+      <!-- ERROR MESSAGE -->
+
+      {% if error %}
+
+      <div class="error">
+        <strong>⚠ Investigation Error:</strong>
+        {{ error }}
+      </div>
+
+      {% endif %} {% if searched_ip and not error and investigation %}
+
+      <!-- INVESTIGATION SUMMARY -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>Investigation: {{ searched_ip }}</h2>
+
+          <span class="section-label"> INVESTIGATION RESULTS </span>
+        </div>
+
+        <p class="muted investigation-note">
+          Results are based on observed traffic. A risk classification is an
+          indicator for further review, not proof that an IP is malicious.
+        </p>
+
+        <div class="summary">{{ investigation.summary }}</div>
+      </section>
+
+      <!-- MAIN INVESTIGATION METRICS -->
+
+      <div class="grid">
+        <div class="card">
+          <small>Associated Flows</small>
+          <strong>{{ investigation.total_flows }}</strong>
+        </div>
+
+        <div class="card">
+          <small>Total Packets</small>
+          <strong>{{ investigation.total_packets }}</strong>
+        </div>
+
+        <div class="card">
+          <small>Total Data</small>
+          <strong>{{ investigation.total_bytes_mb }} MB</strong>
+        </div>
+
+        <div class="card">
+          <small>Unique Peer IPs</small>
+          <strong>{{ investigation.unique_peers }}</strong>
+        </div>
+
+        <div class="card metric-high">
+          <small>HIGH Risk</small>
+          <strong>{{ investigation.high }}</strong>
+        </div>
+
+        <div class="card metric-medium">
+          <small>MEDIUM Risk</small>
+          <strong>{{ investigation.medium }}</strong>
+        </div>
+      </div>
+
+      <!-- RISK BREAKDOWN -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>◈ Risk Breakdown</h2>
+
+          <span class="section-label"> SEVERITY DISTRIBUTION </span>
+        </div>
+
+        <div class="grid">
+          <div class="card metric-high">
+            <small>HIGH</small>
+            <strong>{{ investigation.high }}</strong>
+          </div>
+
+          <div class="card metric-medium">
+            <small>MEDIUM</small>
+            <strong>{{ investigation.medium }}</strong>
+          </div>
+
+          <div class="card metric-low">
+            <small>LOW</small>
+            <strong>{{ investigation.low }}</strong>
+          </div>
+
+          <div class="card metric-info">
+            <small>INFO</small>
+            <strong>{{ investigation.info }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONNECTED PEER IPS -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>⌁ Connected Peer IPs</h2>
+          <span class="section-label">NETWORK RELATIONSHIPS</span>
+        </div>
+
+        {% if investigation.peers %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Peer IP</th>
+                <th>Flow Count</th>
+                <th>Packets</th>
+                <th>Data (MB)</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for peer in investigation.peers %}
+
+              <tr>
+                <td>{{ peer.ip }}</td>
+                <td>{{ peer.flows }}</td>
+                <td>{{ peer.packets }}</td>
+                <td>{{ peer.data_mb }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <p class="empty">No peer IP information available.</p>
+
+        {% endif %}
+      </section>
+
+      <!-- PORT ANALYSIS -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>◉ Port Analysis</h2>
+          <span class="section-label">PORT DISTRIBUTION</span>
+        </div>
+
+        {% if investigation.ports %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Port</th>
+                <th>Flow Count</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for port in investigation.ports %}
+
+              <tr>
+                <td>{{ port.port }}</td>
+                <td>{{ port.flows }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <p class="empty">No port information available.</p>
+
+        {% endif %}
+      </section>
+
+      <!-- OBSERVED FLOW RECORDS -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>⌁ Observed Flow Records</h2>
+          <span class="section-label">NETWORK FLOW DATA</span>
+        </div>
+
+        {% if investigation.flows %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>First Seen</th>
+                <th>Protocol</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Packets</th>
+                <th>Bytes</th>
+                <th>ML Result</th>
+                <th>Risk</th>
+                <th>Explanation</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for flow in investigation.flows %}
+
+              <tr>
+                <td>{{ flow.first_seen }}</td>
+
+                <td>{{ flow.protocol }}</td>
+
+                <td>{{ flow.source_ip }}:{{ flow.source_port }}</td>
+
+                <td>{{ flow.destination_ip }}:{{ flow.destination_port }}</td>
+
+                <td>{{ flow.total_packets }}</td>
+
+                <td>{{ flow.total_bytes }}</td>
+
+                <td>{{ flow.model_prediction }}</td>
+
+                <td>
+                  <span class="risk {{ flow.hybrid_risk }}">
+                    {{ flow.hybrid_risk }}
+                  </span>
+                </td>
+
+                <td>{{ flow.detection_explanation }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <p class="empty">No matching flows found.</p>
+
+        {% endif %}
+      </section>
+
+      <!-- RELATED PERSISTENT ALERTS -->
+
+      <section class="panel">
+        <div class="panel-heading">
+          <h2>⚑ Related Persistent Alerts</h2>
+          <span class="section-label">CORRELATED ALERT HISTORY</span>
+        </div>
+
+        {% if investigation.alerts %}
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Detected At</th>
+                <th>Protocol</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Risk</th>
+                <th>Score</th>
+                <th>Explanation</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for alert in investigation.alerts %}
+
+              <tr>
+                <td>{{ alert.alert_detected_at }}</td>
+
+                <td>{{ alert.protocol }}</td>
+
+                <td>{{ alert.source_ip }}:{{ alert.source_port }}</td>
+
+                <td>{{ alert.destination_ip }}:{{ alert.destination_port }}</td>
+
+                <td>
+                  <span class="risk {{ alert.hybrid_risk }}">
+                    {{ alert.hybrid_risk }}
+                  </span>
+                </td>
+
+                <td>{{ alert.hybrid_score }}</td>
+
+                <td>{{ alert.detection_explanation }}</td>
+              </tr>
+
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% else %}
+
+        <p class="empty">No matching persistent alerts found for this IP.</p>
+
+        {% endif %}
+      </section>
+
+      {% elif not searched_ip and not error %}
+
+      <!-- INITIAL EMPTY STATE -->
+
+      <section class="panel">
+        <div class="empty-box">
+          <div class="empty-icon">🔍</div>
+
+          <h3>Start an IP Investigation</h3>
+
+          <p class="muted">
+            Enter an IP address from your network flow records. WiSecure will
+            search both source and destination fields and correlate matching
+            alerts.
+          </p>
+        </div>
+      </section>
+
+      {% endif %}
+
+      <!-- FOOTER -->
+
+      <div class="footer">
+        WiSecure 2.0 | Network Security Investigation and Threat Analysis
+        <br />
+        Observed anomalies are indicators for investigation, not confirmation of
+        malicious activity.
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='wisecure_notifications.js') }}"></script>
+  </body>
+</html>
